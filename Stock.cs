@@ -3,93 +3,84 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Transactions;
 
-namespace StocksProgram
+namespace StockProgram
 {
     public class Stock
     {
-        public Stock() { }
-
-        private static List<Stock> portfolio = new List<Stock>();
-        private static List<Transaction> transactions = new List<Transaction>();
-        public string Symbol { get; set; }
-        public string Name { get; set; }
-        public decimal Price { get; set; }
-        public int Quantity { get; set; }
-
-        public Stock(string symbol, string name, decimal price, int quantity)
+        static Dictionary<string, decimal> stockPrices = new Dictionary<string, decimal>();
+        public void AddStockPrice()
         {
-            Symbol = symbol;
-            Name = name;
-            Price = price;
-            Quantity = quantity;
-        }
-
-        public override string ToString()
-        {
-            return $"Symbol: {Symbol}\nName: {Name}\nPrice: {Price:C}\nQuantity: {Quantity}\n";
-        }
-        public void AddStock()
-        {
-            Console.WriteLine("Enter stock information:");
-            Console.Write("Symbol: ");
+            Console.Write("Enter stock symbol: ");
             string symbol = Console.ReadLine();
-            Console.Write("Name: ");
-            string name = Console.ReadLine();
-            Console.Write("Price: ");
-            decimal price = Convert.ToDecimal(Console.ReadLine());
-            Console.Write("Quantity: ");
-            int quantity = Convert.ToInt32(Console.ReadLine());
 
-            Stock stock = new Stock(symbol, name, price, quantity);
-            portfolio.Add(stock);
+            Console.Write("Enter stock price: ");
+            string priceStr = Console.ReadLine();
 
-            Transaction transaction = new Transaction(DateTime.Now, $"Added stock: {stock.Symbol} - Quantity: {stock.Quantity}");
-            transactions.Add(transaction);
-
-            Console.WriteLine("Stock added successfully!");
-        }
-
-        public void ShowTransactions()
-        {
-            Console.WriteLine("Transaction History:");
-            foreach (Transaction transaction in transactions)
+            if (!decimal.TryParse(priceStr, out decimal price))
             {
-                Console.WriteLine(transaction.ToString());
+                Console.WriteLine("Invalid price. Please enter a valid decimal number.");
+                return;
             }
+
+            stockPrices[symbol] = price;
+            Console.WriteLine("Stock added successfully.");
         }
 
-        public void ViewPortfolio()
+        public void UpdateStockPrice()
         {
-            if (portfolio.Count > 0)
+            Console.Write("Enter stock symbol: ");
+            string symbol = Console.ReadLine();
+
+            if (!stockPrices.ContainsKey(symbol))
             {
-                Console.WriteLine("Portfolio: ");
-                foreach (Stock stock in portfolio)
-                {
-                    Console.WriteLine(stock.ToString());
-                }
+                Console.WriteLine("Stock symbol not found.");
+                return;
             }
-            else
+
+            Console.Write("Enter new stock: ");
+            string priceStr = Console.ReadLine();
+
+            if (!decimal.TryParse(priceStr, out decimal price))
             {
-                Console.WriteLine("Portfolio is empty.");
+                Console.WriteLine("Invalid price. Please enter a valid decimal number.");
+                return;
             }
-        }
-    }
-    public class Transaction
-    {
-        public DateTime DateTime { get; set; }
-        public string Description { get; set; }
 
-        public Transaction(DateTime dateTime, string description)
-        {
-            DateTime = dateTime;
-            Description = description;
+            stockPrices[symbol] = price;
+            Console.WriteLine("Stock price updated successfully.");
         }
 
-        public override string ToString()
+        public void DeleteStockPrice()
         {
-            return $"{DateTime} - {Description}";
+            Console.Write("Enter stock symbol: ");
+            string symbol = Console.ReadLine();
+
+            if (!stockPrices.ContainsKey(symbol))
+            {
+                Console.WriteLine("Stock symbol not found.");
+                return;
+            }
+
+            stockPrices.Remove(symbol);
+            Console.WriteLine("Stock deleted successfully.");
+        }
+
+        public void ViewStockPrices()
+        {
+            Console.WriteLine("Stocks Portfolio:- ");
+
+            if (stockPrices.Count == 0)
+            {
+                Console.WriteLine("No stock available.");
+                return;
+            }
+
+            foreach (var kvp in stockPrices)
+            {
+                Console.WriteLine($"{kvp.Key} : {kvp.Value}");
+            }
         }
     }
 }
+
